@@ -88,10 +88,10 @@ GOOGLE_API_KEY=your_google_api_key_here
 
 ```bash
 # Full streaming demo with Rich UI
-python -m bigdata_search_agent.streaming_example
+uv run -m bigdata_search_agent.streaming_example
 
 # Debug mode for detailed execution tracing
-python -m bigdata_search_agent.streaming_example --debug
+uv run -m bigdata_search_agent.streaming_example --debug
 ```
 
 ## 💡 Usage Examples

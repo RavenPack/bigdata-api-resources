@@ -64,9 +64,6 @@
 ```bash
 # Using uv (recommended)
 uv sync
-
-# Or using pip
-pip install -e .
 ```
 
 ### 2. Set Environment Variables

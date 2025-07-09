@@ -1,0 +1,15 @@
+# Bigdata Search Tests Environment Variables
+# Copy this file to .env and fill in your actual credentials
+
+# Bigdata.com API Credentials
+BIGDATA_USERNAME=your_username_here
+BIGDATA_PASSWORD=your_password_here
+
+# Test Configuration
+TEST_ENTITY_ID=DD3BB1  # Tesla's entity ID for testing
+TEST_COMPANY_NAME=Tesla
+TEST_TICKER=TSLA
+
+# Optional: Test specific date ranges
+TEST_DATE_START=2024-01-01
+TEST_DATE_END=2024-12-31 

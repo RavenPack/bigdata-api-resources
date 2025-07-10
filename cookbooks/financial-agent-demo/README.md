@@ -81,6 +81,9 @@ BIGDATA_PASSWORD=your_password_here
 GOOGLE_API_KEY=your_google_api_key_here
 ```
 
+> [!IMPORTANT]
+> Visit [our website](https://www.bigdata.com/for-developers?utm_source=github) to request access to your Bigdata API credentials.
+
 ### 3. Run Interactive Demo
 
 ```bash

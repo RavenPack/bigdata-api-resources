@@ -5,14 +5,17 @@ Company Daily News Script for Bigdata.com
 This script authenticates to Bigdata.com APIs, retrieves watchlist items,
 and searches for daily news in period for each company using a threadpool.
 """
-
+ 
 import os
+import csv
 import sys
 import time
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
+import traceback
 
 # Bigdata client imports
 from bigdata_client import Bigdata
@@ -79,6 +82,49 @@ def authenticate_bigdata():
         sys.exit(1)
 
 
+class DateUtils:
+    """Utility class for date-related operations."""
+    
+    @staticmethod
+    def get_today_date() -> str:
+        """Get today's date in YYYY-MM-DD format.
+        
+        Returns:
+            str: Today's date in YYYY-MM-DD format
+        """
+        return datetime.now().strftime('%Y-%m-%d')
+    
+    @staticmethod
+    def create_date_range(date: str) -> AbsoluteDateRange:
+        """Create an absolute date range for a specific date.
+        
+        Args:
+            date: Date string in YYYY-MM-DD format
+            
+        Returns:
+            AbsoluteDateRange object for the specified date
+        """
+        start_time = f"{date}T00:00:00"
+        end_time = f"{date}T23:59:59"
+        return AbsoluteDateRange(start_time, end_time)
+    
+    @staticmethod
+    def validate_date_format(date_str: str) -> bool:
+        """Validate if a date string is in YYYY-MM-DD format.
+        
+        Args:
+            date_str: Date string to validate
+            
+        Returns:
+            bool: True if valid format, False otherwise
+        """
+        try:
+            datetime.strptime(date_str, '%Y-%m-%d')
+            return True
+        except ValueError:
+            return False
+
+
 class CompanyDailyNewsCollector:
     """Collects news for companies in a watchlist using Bigdata.com APIs for a specific date."""
     
@@ -121,23 +167,7 @@ class CompanyDailyNewsCollector:
             logger.error(f"Error retrieving watchlist {watchlist_id}: {e}")
             return []
     
-    def _get_today_date(self) -> str:
-        """Get today's date in YYYY-MM-DD format."""
-        from datetime import datetime
-        return datetime.now().strftime('%Y-%m-%d')
-    
-    def _create_date_range(self, date: str) -> AbsoluteDateRange:
-        """Create an AbsoluteDateRange for the specified date.
-        
-        Args:
-            date: Date in YYYY-MM-DD format
-            
-        Returns:
-            AbsoluteDateRange object for the specified date
-        """
-        start_time = f"{date}T00:00:00"
-        end_time = f"{date}T23:59:59"
-        return AbsoluteDateRange(start_time, end_time)
+
     
     def get_watchlist_items(self, watchlist_id: str) -> List[str]:
         """Retrieve all items from a watchlist."""
@@ -173,7 +203,7 @@ class CompanyDailyNewsCollector:
             logger.debug(f"Searching news for entity: {rp_entity_id} on date: {date}")
             
             # Perform search with chunk limit of 100
-            date_range = self._create_date_range(date)
+            date_range = DateUtils.create_date_range(date)
             search = self.client.search.new(query=Entity(rp_entity_id), scope=DocumentType.NEWS, date_range=date_range)
             documents = search.run(limit=ChunkLimit(100))
             
@@ -219,7 +249,7 @@ class CompanyDailyNewsCollector:
             
             return rp_entity_id, result
     
-    def collect_news_for_watchlist(self, date: str, max_workers: int = 10) -> Dict:
+    def collect_news_for_watchlist(self, date: str, max_workers: int = 20) -> Dict:
         """Collect news for all companies in a watchlist for a specific date using threadpool.
         
         Args:
@@ -281,6 +311,109 @@ class CompanyDailyNewsCollector:
         logger.info(f"END NEWS Collection on date {date}: {total_documents} documents from {len(results_per_entity)} entities, search usage: {total_search_usage}")
         return news_collection_result
     
+    def _create_entity_news_csv(self, entity_id: str, date: str, documents: List) -> int:
+        """Create a CSV file for a specific entity's news data on a specific date.
+        
+        Args:
+            entity_id: The entity ID (RavenPack entity ID)
+            date: The date for which news was collected
+            documents: List of document objects for the entity
+            
+        Returns:
+            int: Number of rows written to the CSV file
+        """
+        # Create base output directory
+        output_dir = "news_data"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        # Create date-specific folder
+        date_folder = os.path.join(output_dir, date)
+        if not os.path.exists(date_folder):
+            os.makedirs(date_folder)
+            logger.info(f"Created folder: {date_folder}")
+        
+        # Create CSV filename: entity_id_date.csv
+        csv_filename = f"{entity_id}_{date}.csv"
+        csv_path = os.path.join(date_folder, csv_filename)
+        
+        # CSV columns as specified
+        csv_columns = [
+            'date', 'entity_id', 'source_key', 'source_name', 
+            'document_id', 'document_headline', 'chunk_relevant', 
+            'chunk_sentiment', 'chunk_text'
+        ]
+        
+        rows_written = 0
+        with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+            writer.writeheader()
+            
+            for doc in documents:
+                try:
+                    # Extract document information
+                    doc_id = getattr(doc, 'id', 'unknown')
+                    headline = getattr(doc, 'headline', 'No headline')
+                    
+                    # Extract source information
+                    source_key = doc.source.key
+                    source_name = doc.source.name
+                    
+                    # Get chunks from document
+                    chunks = getattr(doc, 'chunks', [])
+                    
+                    if not chunks:
+                        # If no chunks, create one row with document-level info
+                        chunk_text = getattr(doc, 'text', 'No text available')
+                        # Replace newlines with dots to maintain CSV format
+                        chunk_text = chunk_text.replace('\n', '. ').replace('\r', '. ')
+                        chunk_relevant = getattr(doc, 'relevance', 'unknown')
+                        chunk_sentiment = getattr(doc, 'sentiment', 'unknown')
+                        
+                        row = {
+                            'date': date,
+                            'entity_id': entity_id,
+                            'source_key': source_key,
+                            'source_name': source_name,
+                            'document_id': doc_id,
+                            'document_headline': headline,
+                            'chunk_relevant': chunk_relevant,
+                            'chunk_sentiment': chunk_sentiment,
+                            'chunk_text': chunk_text
+                        }
+                        writer.writerow(row)
+                        rows_written += 1
+                    else:
+                        # Process each chunk separately
+                        for chunk in chunks:
+                            # Extract chunk information
+                            chunk_text = getattr(chunk, 'text', 'No text available')
+                            # Replace newlines with dots to maintain CSV format
+                            chunk_text = chunk_text.replace('\n', '. ').replace('\r', '. ')
+                            chunk_relevant = getattr(chunk, 'relevance', 'unknown')
+                            chunk_sentiment = getattr(chunk, 'sentiment', 'unknown')
+                            
+                            # Write row to CSV for this chunk
+                            row = {
+                                'date': date,
+                                'entity_id': entity_id,
+                                'source_key': source_key,
+                                'source_name': source_name,
+                                'document_id': doc_id,
+                                'document_headline': headline,
+                                'chunk_relevant': chunk_relevant,
+                                'chunk_sentiment': chunk_sentiment,
+                                'chunk_text': chunk_text
+                            }
+                            writer.writerow(row)
+                            rows_written += 1
+                    
+                except Exception as e:
+                    logger.warning(f"Error processing document {getattr(doc, 'id', 'unknown')} for entity {entity_id}: {e}")
+                    continue
+        
+        return rows_written
+    
     def _save_news_to_csv(self, news_collection_result: Dict, date: str):
         """Save news data to CSV files organized by date and entity.
         
@@ -288,21 +421,8 @@ class CompanyDailyNewsCollector:
             news_collection_result: The news collection result containing entity results
             date: The date for which news was collected
         """
-        import csv
-        import os
         
         try:
-            # Create base output directory
-            output_dir = "news_data"
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
-            
-            # Create date-specific folder
-            date_folder = os.path.join(output_dir, date)
-            if not os.path.exists(date_folder):
-                os.makedirs(date_folder)
-                logger.info(f"Created folder: {date_folder}")
-            
             results_per_entity = news_collection_result.get('results_per_entity', {})
             total_files_created = 0
             
@@ -316,99 +436,25 @@ class CompanyDailyNewsCollector:
                     logger.debug(f"No documents for entity {entity_id} on {date}")
                     continue
                 
-                # Create CSV filename: entity_id_date.csv
-                csv_filename = f"{entity_id}_{date}.csv"
-                csv_path = os.path.join(date_folder, csv_filename)
+                # Create CSV file for this entity
+                rows_written = self._create_entity_news_csv(entity_id, date, documents)
                 
-                # CSV columns as specified
-                csv_columns = [
-                    'date', 'entity_id', 'source_key', 'source_name', 
-                    'document_id', 'document_headline', 'chunk_relevant', 
-                    'chunk_sentiment', 'chunk_text'
-                ]
-                
-                with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
-                    writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-                    writer.writeheader()
-                    
-                    rows_written = 0
-                    for doc in documents:
-                        try:
-                            # Extract document information
-                            doc_id = getattr(doc, 'id', 'unknown')
-                            headline = getattr(doc, 'headline', 'No headline')
-                            
-                            # Extract source information
-                            source_key = doc.source.key
-                            source_name = doc.source.name
-                            
-                            # Get chunks from document
-                            chunks = getattr(doc, 'chunks', [])
-                            
-                            if not chunks:
-                                # If no chunks, create one row with document-level info
-                                chunk_text = getattr(doc, 'text', 'No text available')
-                                chunk_relevant = getattr(doc, 'relevance', 'unknown')
-                                chunk_sentiment = getattr(doc, 'sentiment', 'unknown')
-                                
-                                row = {
-                                    'date': date,
-                                    'entity_id': entity_id,
-                                    'source_key': source_key,
-                                    'source_name': source_name,
-                                    'document_id': doc_id,
-                                    'document_headline': headline,
-                                    'chunk_relevant': chunk_relevant,
-                                    'chunk_sentiment': chunk_sentiment,
-                                    'chunk_text': chunk_text
-                                }
-                                writer.writerow(row)
-                                rows_written += 1
-                            else:
-                                # Process each chunk separately
-                                for chunk in chunks:
-                                    try:
-                                        # Extract chunk information
-                                        chunk_text = getattr(chunk, 'text', 'No text available')
-                                        chunk_relevant = getattr(chunk, 'relevance', 'unknown')
-                                        chunk_sentiment = getattr(chunk, 'sentiment', 'unknown')
-                                        
-                                        # Write row to CSV for this chunk
-                                        row = {
-                                            'date': date,
-                                            'entity_id': entity_id,
-                                            'source_key': source_key,
-                                            'source_name': source_name,
-                                            'document_id': doc_id,
-                                            'document_headline': headline,
-                                            'chunk_relevant': chunk_relevant,
-                                            'chunk_sentiment': chunk_sentiment,
-                                            'chunk_text': chunk_text
-                                        }
-                                        writer.writerow(row)
-                                        rows_written += 1
-                                        
-                                    except Exception as e:
-                                        logger.warning(f"Error processing chunk in document {doc_id} for entity {entity_id}: {e}")
-                                        continue
-                            
-                        except Exception as e:
-                            logger.warning(f"Error processing document {getattr(doc, 'id', 'unknown')} for entity {entity_id}: {e}")
-                            continue
-                    
-                    if rows_written > 0:
-                        total_files_created += 1
-                        logger.info(f"Created CSV file: {csv_filename} with {rows_written} rows")
-                    else:
-                        # Remove empty CSV file
-                        os.remove(csv_path)
-                        logger.debug(f"Removed empty CSV file: {csv_filename}")
+                if rows_written > 0:
+                    total_files_created += 1
+                    csv_filename = f"{entity_id}_{date}.csv"
+                    logger.debug(f"Created CSV file: {csv_filename} with {rows_written} rows")
+                else:
+                    # Remove empty CSV file
+                    output_dir = "news_data"
+                    date_folder = os.path.join(output_dir, date)
+                    csv_path = os.path.join(date_folder, f"{entity_id}_{date}.csv")
+                    os.remove(csv_path)
+                    logger.debug(f"Removed empty CSV file: {csv_filename}")
             
-            logger.info(f"CSV export completed for date {date}: {total_files_created} files created in {date_folder}")
+            logger.info(f"CSV export completed for date {date}: {total_files_created} files created")
             
         except Exception as e:
             logger.error(f"Error saving news data to CSV for date {date}: {e}")
-            import traceback
             traceback.print_exc()
 
 def main():
@@ -438,6 +484,14 @@ def main():
         sys.exit(1)
     
     try:
+        # Validate date formats if provided
+        if start_date and not DateUtils.validate_date_format(start_date):
+            print(f"Error: Invalid start_date format '{start_date}'. Expected format: YYYY-MM-DD")
+            sys.exit(1)
+        if end_date and not DateUtils.validate_date_format(end_date):
+            print(f"Error: Invalid end_date format '{end_date}'. Expected format: YYYY-MM-DD")
+            sys.exit(1)
+        
         # If only start_date is provided, use it as single date
         if start_date and not end_date:
             dates = [start_date]
@@ -448,8 +502,7 @@ def main():
             print(f"Number of dates to process: {len(dates)}")
         # If no dates provided, use today
         else:
-            from datetime import datetime
-            dates = [datetime.now().strftime('%Y-%m-%d')]
+            dates = [DateUtils.get_today_date()]
         
         logger.info(f"Processing {len(dates)} date(s) for watchlist: {watchlist_id}")
         logger.info(f"Date range: {dates[0]} to {dates[-1]}")
@@ -533,7 +586,6 @@ def main():
                 
             except Exception as e:
                 logger.error(f"Error processing date {date}: {e}")
-                import traceback
                 traceback.print_exc()
                 # Store error result for this date
                 daily_results[date] = {
@@ -594,9 +646,7 @@ def generate_date_range(start_date: str, end_date: str) -> List[str]:
         
     Returns:
         List of date strings in YYYY-MM-DD format
-    """
-    from datetime import datetime, timedelta
-    
+    """  
     try:
         start = datetime.strptime(start_date, '%Y-%m-%d')
         end = datetime.strptime(end_date, '%Y-%m-%d')

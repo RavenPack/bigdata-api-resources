@@ -8,7 +8,7 @@ import argparse
 import json
 import logging
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass, asdict
 
 # Configure logging
@@ -238,8 +238,14 @@ def count_total_chunks(documents: List[Document]) -> int:
 
 def search_premium_sources(sentence: str, start_date: Optional[str] = None,
                          end_date: Optional[str] = None, 
-                         document_types: Optional[List[str]] = None) -> List[Document]:
-    """Main search method that handles both primary and secondary searches"""
+                         document_types: Optional[List[str]] = None) -> Tuple[List[Document], bool]:
+    """Main search method that handles both primary and secondary searches
+    
+    Returns:
+        Tuple[List[Document], bool]: (documents, secondary_search_required)
+        - documents: List of found documents
+        - secondary_search_required: True if secondary search was performed, False otherwise
+    """
     
     if document_types is None:
         document_types = ["NEWS", "FACTSET_TRANSCRIPTS", "QUARTR_TRANSCRIPTS", "SEC_FILINGS"]
@@ -266,8 +272,10 @@ def search_premium_sources(sentence: str, start_date: Optional[str] = None,
     logger.info(f"First search returned {first_search_chunks} chunks")
     
     # Check if we need a second search (for NEWS document type with less than 5 chunks)
+    secondary_search_required = False
     if "NEWS" in document_types and first_search_chunks < 5:
         logger.info("Performing secondary search with negative sources (less than 5 chunks in first search)")
+        secondary_search_required = True
         
         # Create negative sources
         negative_sources = get_negative_sources_for_document_types(document_types)
@@ -296,7 +304,7 @@ def search_premium_sources(sentence: str, start_date: Optional[str] = None,
     else:
         logger.info(f"Single search completed with {first_search_chunks} chunks")
     
-    return processed_documents
+    return processed_documents, secondary_search_required
 
 def ensure_output_directory():
     """Ensure the output directory exists and log its status"""
@@ -359,7 +367,7 @@ def main():
         ensure_output_directory()
         
         # Perform search
-        documents = search_premium_sources(
+        documents, secondary_search_required = search_premium_sources(
             sentence=args.sentence,
             start_date=args.start_date,
             end_date=args.end_date,
@@ -372,6 +380,10 @@ def main():
         print("\nSearch completed successfully!")
         print(f"Total documents found: {len(documents)}")
         print(f"Total chunks: {count_total_chunks(documents)}")
+        if secondary_search_required:
+            print("🔄 Secondary search was performed")
+        else:
+            print("✅ Single search completed")
         print(f"Results saved to: {output_path}")
         
     except Exception as e:

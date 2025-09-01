@@ -130,7 +130,7 @@ class SearchStatisticsAnalyzer:
         
         try:
             # Perform search
-            documents = search_premium_sources(
+            documents, secondary_search_required = search_premium_sources(
                 sentence=query,
                 start_date=start_date,
                 end_date=end_date,
@@ -143,10 +143,9 @@ class SearchStatisticsAnalyzer:
             result['chunks'] = count_total_chunks(documents)
             result['duration'] = time.time() - start_time
             
-            # Check if secondary search was likely triggered
-            # This is determined by checking if NEWS was in document types and chunks < 5
-            if document_types and "NEWS" in document_types and result['chunks'] < 5:
-                result['secondary_search_triggered'] = True
+            # Record secondary search information from the function return
+            result['secondary_search_triggered'] = secondary_search_required
+            if secondary_search_required:
                 self.secondary_search_stats['NEWS'] += 1
             
             # Update document type statistics

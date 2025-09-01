@@ -128,8 +128,8 @@ def get_sources_for_document_types(document_types: List[str]) -> List[Source]:
     logger.info(f"Created {len(sources)} source objects for document types: {document_types}")
     return sources
 
-def get_negative_sources_for_document_types(document_types: List[str]) -> List[Source]:
-    """Create negative Source objects (using ~) for selected document types"""
+def get_non_premium_source_filter(document_types: List[str]) -> List[Source]:
+    """Create negative Source objects (using ~) for selected document types to filter out premium sources"""
     sources = []
     
     for doc_type in document_types:
@@ -142,7 +142,7 @@ def get_negative_sources_for_document_types(document_types: List[str]) -> List[S
         elif doc_type == "SEC_FILINGS":
             sources.append(~Source(SEC_FILINGS))
     
-    logger.info(f"Created {len(sources)} negative source objects for document types: {document_types}")
+    logger.info(f"Created {len(sources)} non-premium source filter objects for document types: {document_types}")
     return sources
 
 def perform_search(query: Similarity, start_date: Optional[str] = None, 
@@ -277,28 +277,28 @@ def search_premium_sources(sentence: str, start_date: Optional[str] = None,
         logger.info("Performing secondary search with negative sources (less than 5 chunks in first search)")
         secondary_search_required = True
         
-        # Create negative sources
-        negative_sources = get_negative_sources_for_document_types(document_types)
+        # Create non-premium source filters
+        non_premium_sources = get_non_premium_source_filter(document_types)
         
-        # Create negative query
-        negative_query = Similarity(sentence)
+        # Create non-premium source query
+        non_premium_query = Similarity(sentence)
         
-        # Add negative source filters to the query
-        if negative_sources:
-            negative_source_filter = negative_sources[0]
-            for source in negative_sources[1:]:
-                negative_source_filter = negative_source_filter | source
-            negative_query = negative_query & negative_source_filter
+        # Add non-premium source filters to the query
+        if non_premium_sources:
+            non_premium_source_filter = non_premium_sources[0]
+            for source in non_premium_sources[1:]:
+                non_premium_source_filter = non_premium_source_filter | source
+            non_premium_query = non_premium_query & non_premium_source_filter
         
         # Perform second search
-        secondary_documents = perform_search(negative_query, start_date, end_date)
+        secondary_documents = perform_search(non_premium_query, start_date, end_date)
         
         # Extract documents from second search
-        negative_documents, second_search_chunks = extract_documents_from_response(secondary_documents)
+        secondary_processed_documents, second_search_chunks = extract_documents_from_response(secondary_documents)
         logger.info(f"Second search returned {second_search_chunks} chunks")
         
         # Combine both search results
-        processed_documents.extend(negative_documents)
+        processed_documents.extend(secondary_processed_documents)
         total_chunks = first_search_chunks + second_search_chunks
         logger.info(f"Combined search returned {total_chunks} total chunks")
     else:

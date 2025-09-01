@@ -4,11 +4,9 @@ Test Scenarios Script for search_on_premium_sources.py
 This script tests various configurations and edge cases of the search functionality.
 """
 
-import os
-import sys
 import time
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 # Import the search functions
 from search_in_premium_sources import (
@@ -302,7 +300,7 @@ def run_custom_test():
     if not custom_filename:
         custom_filename = None
     
-    print(f"\n🔍 Running custom test...")
+    print("\n🔍 Running custom test...")
     print(f"Query: {query}")
     print(f"Document types: {document_types}")
     print(f"Date range: {start_date} to {end_date}" if start_date and end_date else "Date range: None")
@@ -324,7 +322,7 @@ def run_custom_test():
         # Save results
         output_path = save_documents_to_json(documents, custom_filename)
         
-        print(f"✅ Custom test completed successfully!")
+        print("✅ Custom test completed successfully!")
         print(f"📄 Documents found: {len(documents)}")
         print(f"📊 Total chunks: {count_total_chunks(documents)}")
         print(f"💾 Results saved to: {output_path}")

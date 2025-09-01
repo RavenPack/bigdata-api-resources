@@ -254,8 +254,7 @@ The `search_statistics.py` script provides comprehensive analysis of secondary s
 ## Files
 
 - `search_in_premium_sources.py`: Main search script with all functionality
-- `example_search.py`: Example usage demonstrating different search scenarios
-- `test_scenarios.py`: Comprehensive testing script for various search scenarios
+- `example_scenarios.py`: Example usage demonstrating different search scenarios
 - `search_statistics.py`: Statistics analysis script for secondary search frequency
 - `requirements.txt`: Python dependencies
 - `README.md`: This documentation

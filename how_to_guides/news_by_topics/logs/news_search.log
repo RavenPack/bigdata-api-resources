@@ -1,0 +1,67 @@
+2025-10-23 00:40:30,595 - __main__ - INFO - Reading companies from output/company_ids.csv...
+2025-10-23 00:40:30,596 - __main__ - INFO - Row 2: Found company Micron Technology Inc. with ID 49BBBC
+2025-10-23 00:40:30,596 - __main__ - INFO - Row 3: Found company Figma Inc. with ID BA9E0C
+2025-10-23 00:40:30,596 - __main__ - INFO - Row 4: Found company NVIDIA Corporation with ID E09E2B
+2025-10-23 00:40:30,596 - __main__ - INFO - Row 5: Found company Apple Inc. with ID D8442A
+2025-10-23 00:40:30,596 - __main__ - INFO - Successfully extracted 4 companies from CSV
+2025-10-23 00:40:30,596 - __main__ - INFO - Reading topics from output/top_topics_to_search.csv...
+2025-10-23 00:40:30,597 - __main__ - INFO - Row 2: Found topic Stock Loss (ID: business,stock-prices,stock-price,loss,)
+2025-10-23 00:40:30,597 - __main__ - INFO - Row 3: Found topic Partnership (ID: business,partnerships,partnership,,)
+2025-10-23 00:40:30,597 - __main__ - INFO - Row 4: Found topic Stock Gain (ID: business,stock-prices,stock-price,gain,)
+2025-10-23 00:40:30,597 - __main__ - INFO - Row 5: Found topic Supply Decrease (ID: business,products-services,supply,decrease,)
+2025-10-23 00:40:30,597 - __main__ - INFO - Row 6: Found topic Demand Increase (ID: business,products-services,demand,increase,)
+2025-10-23 00:40:30,598 - __main__ - INFO - Row 7: Found topic Stake (ID: business,acquisitions-mergers,stake,,)
+2025-10-23 00:40:30,598 - __main__ - INFO - Row 8: Found topic Product Enhancement (ID: business,products-services,product-enhancement,,)
+2025-10-23 00:40:30,598 - __main__ - INFO - Row 9: Found topic Legal Issues (ID: society,legal,legal-issues,,)
+2025-10-23 00:40:30,598 - __main__ - INFO - Successfully extracted 8 topic IDs from CSV
+2025-10-23 00:40:30,599 - __main__ - INFO - Found 4 companies and 8 topics
+2025-10-23 00:40:30,599 - utils - INFO - Search time range: 2025-10-21T22:40:30Z to 2025-10-22T22:40:30Z
+2025-10-23 00:40:30,599 - __main__ - INFO - Searching for news using 20 concurrent workers...
+2025-10-23 00:40:30,600 - __main__ - INFO - Searching news for company: Micron Technology Inc. (ID: 49BBBC)
+2025-10-23 00:40:30,600 - __main__ - INFO - Searching news for company: Figma Inc. (ID: BA9E0C)
+2025-10-23 00:40:30,602 - __main__ - INFO - Searching news for company: NVIDIA Corporation (ID: E09E2B)
+2025-10-23 00:40:30,604 - __main__ - INFO - Searching news for company: Apple Inc. (ID: D8442A)
+2025-10-23 00:40:32,313 - __main__ - INFO - Successfully retrieved 0 documents for Figma Inc.
+2025-10-23 00:40:32,767 - __main__ - INFO - Successfully retrieved 46 documents for Apple Inc.
+2025-10-23 00:40:33,158 - __main__ - INFO - Successfully retrieved 36 documents for NVIDIA Corporation
+2025-10-23 00:40:33,821 - __main__ - INFO - Successfully retrieved 17 documents for Micron Technology Inc.
+2025-10-23 00:40:33,825 - __main__ - INFO - # News Search Results Summary
+2025-10-23 00:40:33,825 - __main__ - INFO - ## Figma Inc. (ID: BA9E0C)
+2025-10-23 00:40:33,825 - __main__ - INFO - *No news documents found for this company in the last 24 hours.*
+2025-10-23 00:40:33,826 - __main__ - INFO - ## Apple Inc. (ID: D8442A)
+2025-10-23 00:40:33,826 - __main__ - INFO - | Topic Name          | Avg Priority | Avg Sentiment | Avg Relevance | Count |
+2025-10-23 00:40:33,826 - __main__ - INFO - |---------------------|--------------|---------------|---------------|-------|
+2025-10-23 00:40:33,826 - __main__ - INFO - | Demand Increase     | 0.2371       | -0.4433       | 0.3943        | 9     |
+2025-10-23 00:40:33,827 - __main__ - INFO - | Stock Loss          | 0.184        | -0.4617       | 0.3312        | 12    |
+2025-10-23 00:40:33,827 - __main__ - INFO - | Legal Issues        | 0.1674       | -0.73         | 0.2286        | 7     |
+2025-10-23 00:40:33,827 - __main__ - INFO - | Supply Decrease     | 0.1423       | -0.472        | 0.2457        | 15    |
+2025-10-23 00:40:33,827 - __main__ - INFO - | Partnership         | 0.1143       | 0.4489        | 0.2292        | 9     |
+2025-10-23 00:40:33,827 - __main__ - INFO - | Product Enhancement | 0.1109       | -0.355        | 0.1716        | 4     |
+2025-10-23 00:40:33,827 - __main__ - INFO - | Stock Gain          | 0.0969       | 0.3747        | 0.1819        | 15    |
+2025-10-23 00:40:33,828 - __main__ - INFO - **Summary:** 7 topics found across 46 documents
+2025-10-23 00:40:33,828 - __main__ - INFO - --------------------------------
+2025-10-23 00:40:33,828 - __main__ - INFO - ## NVIDIA Corporation (ID: E09E2B)
+2025-10-23 00:40:33,828 - __main__ - INFO - | Topic Name          | Avg Priority | Avg Sentiment | Avg Relevance | Count |
+2025-10-23 00:40:33,829 - __main__ - INFO - |---------------------|--------------|---------------|---------------|-------|
+2025-10-23 00:40:33,829 - __main__ - INFO - | Stock Gain          | 0.1063       | 0.427         | 0.2084        | 10    |
+2025-10-23 00:40:33,829 - __main__ - INFO - | Partnership         | 0.1007       | 0.6314        | 0.158         | 22    |
+2025-10-23 00:40:33,829 - __main__ - INFO - | Stake               | 0.0795       | 0.46          | 0.1728        | 2     |
+2025-10-23 00:40:33,829 - __main__ - INFO - | Product Enhancement | 0.0732       | 0.385         | 0.1842        | 2     |
+2025-10-23 00:40:33,829 - __main__ - INFO - | Stock Loss          | 0.0608       | -0.48         | 0.1267        | 2     |
+2025-10-23 00:40:33,830 - __main__ - INFO - **Summary:** 5 topics found across 36 documents
+2025-10-23 00:40:33,830 - __main__ - INFO - --------------------------------
+2025-10-23 00:40:33,830 - __main__ - INFO - ## Micron Technology Inc. (ID: 49BBBC)
+2025-10-23 00:40:33,830 - __main__ - INFO - | Topic Name          | Avg Priority | Avg Sentiment | Avg Relevance | Count |
+2025-10-23 00:40:33,831 - __main__ - INFO - |---------------------|--------------|---------------|---------------|-------|
+2025-10-23 00:40:33,831 - __main__ - INFO - | Stock Gain          | 0.2623       | 0.79          | 0.332         | 1     |
+2025-10-23 00:40:33,831 - __main__ - INFO - | Stock Loss          | 0.1326       | -0.83         | 0.1593        | 10    |
+2025-10-23 00:40:33,831 - __main__ - INFO - | Partnership         | 0.1111       | 0.385         | 0.1887        | 2     |
+2025-10-23 00:40:33,831 - __main__ - INFO - | Product Enhancement | 0.0693       | 0.27          | 0.2566        | 1     |
+2025-10-23 00:40:33,831 - __main__ - INFO - **Summary:** 4 topics found across 17 documents
+2025-10-23 00:40:33,831 - __main__ - INFO - --------------------------------
+2025-10-23 00:40:33,832 - __main__ - INFO - # Final Summary
+2025-10-23 00:40:33,832 - __main__ - INFO - - **Companies processed:** 4
+2025-10-23 00:40:33,832 - __main__ - INFO - - **Companies with news:** 3
+2025-10-23 00:40:33,832 - __main__ - INFO - - **Total documents found:** 99
+2025-10-23 00:40:33,832 - __main__ - INFO - - **Topics searched:** 8
+2025-10-23 00:40:33,833 - __main__ - INFO - - **Time range:** Last 24 hours

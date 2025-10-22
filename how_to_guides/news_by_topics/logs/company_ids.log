@@ -1,0 +1,26 @@
+2025-10-23 00:39:50,318 - __main__ - INFO - Row 2: Added to listing array - Listing ID: XNAS:AAPL
+2025-10-23 00:39:50,318 - __main__ - INFO - Row 3: Added to ISIN array - ISIN: US5951121038
+2025-10-23 00:39:50,318 - __main__ - INFO - Row 4: Added to SEDOL array - SEDOL: 2379504
+2025-10-23 00:39:50,318 - __main__ - INFO - Row 5: Added to CUSIP array - CUSIP: 316841105
+2025-10-23 00:39:50,318 - __main__ - INFO - Successfully processed CSV file. Summary:
+2025-10-23 00:39:50,319 - __main__ - INFO -   - Companies by ISIN: 1
+2025-10-23 00:39:50,319 - __main__ - INFO -   - Companies by CUSIP: 1
+2025-10-23 00:39:50,319 - __main__ - INFO -   - Companies by SEDOL: 1
+2025-10-23 00:39:50,319 - __main__ - INFO -   - Companies by listing (mic:ticker): 1
+2025-10-23 00:39:50,319 - __main__ - INFO - Searching ravenpack_id for 1 ISIN codes
+2025-10-23 00:39:52,069 - __main__ - INFO - API response received successfully
+2025-10-23 00:39:52,070 - __main__ - INFO - Found ravenpack_id 49BBBC for ISIN US5951121038
+2025-10-23 00:39:52,070 - __main__ - INFO - Successfully mapped 1 ISIN codes to ravenpack_ids
+2025-10-23 00:39:52,071 - __main__ - INFO - Searching ravenpack_id for 1 CUSIP codes
+2025-10-23 00:39:52,978 - __main__ - INFO - API response received successfully
+2025-10-23 00:39:52,979 - __main__ - INFO - Found ravenpack_id BA9E0C for CUSIP 316841105
+2025-10-23 00:39:52,979 - __main__ - INFO - Successfully mapped 1 CUSIP codes to ravenpack_ids
+2025-10-23 00:39:52,980 - __main__ - INFO - Searching ravenpack_id for 1 SEDOL codes
+2025-10-23 00:39:54,405 - __main__ - INFO - API response received successfully
+2025-10-23 00:39:54,406 - __main__ - INFO - Found ravenpack_id E09E2B for SEDOL 2379504
+2025-10-23 00:39:54,406 - __main__ - INFO - Successfully mapped 1 SEDOL codes to ravenpack_ids
+2025-10-23 00:39:54,408 - __main__ - INFO - Searching ravenpack_id for 1 listing IDs
+2025-10-23 00:39:55,224 - __main__ - INFO - API response received successfully
+2025-10-23 00:39:55,224 - __main__ - INFO - Found ravenpack_id D8442A for listing XNAS:AAPL
+2025-10-23 00:39:55,225 - __main__ - INFO - Successfully mapped 1 listing IDs to ravenpack_ids
+2025-10-23 00:39:55,227 - __main__ - INFO - Successfully wrote 4 companies to output/company_ids.csv

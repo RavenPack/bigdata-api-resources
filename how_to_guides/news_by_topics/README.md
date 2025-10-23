@@ -152,7 +152,7 @@ The final analysis produces tables like this:
 ### Search Parameters
 - **Time Range**: Last 24 hours (configurable in code)
 - **Sources**: Predefined news sources (configurable)
-- **Max Results**: 100 documents per company (configurable)
+- **Max Results**: 100 chunks per company (configurable)
 
 ## Troubleshooting
 

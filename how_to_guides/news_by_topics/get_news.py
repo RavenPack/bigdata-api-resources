@@ -34,7 +34,7 @@ api_key = os.getenv("BIGDATA_API_KEY")
 BIGDATA_SEARCH_URL = "https://api.bigdata.com/v1/search"
 
 
-def read_companies_from_csv(csv_file_path: str) -> List[Dict[str, str]]:
+def read_companies_ids_from_csv(csv_file_path: str) -> List[Dict[str, str]]:
     """
     Read CSV file and extract company information
     
@@ -249,14 +249,8 @@ def calculate_chunk_priority(chunk: Dict[str, Any]) -> float:
     Returns:
         float: Absolute priority score (abs(sentiment * relevance))
     """
-    sentiment = chunk.get('sentiment', 0)
-    relevance = chunk.get('relevance', 0)
-    
-    # Handle None values
-    if sentiment is None:
-        sentiment = 0
-    if relevance is None:
-        relevance = 0
+    sentiment = chunk.get("sentiment") or 0
+    relevance = chunk.get("relevance") or 0
     
     priority = abs(sentiment * relevance)
     return round(priority, 4)  # Round to 4 decimal places
@@ -422,7 +416,7 @@ def main():
     try:
         # Read companies from CSV
         logger.info(f"Reading companies from {companies_file}...")
-        companies = read_companies_from_csv(companies_file)
+        companies = read_companies_ids_from_csv(companies_file)
         
         if not companies:
             logger.error("No companies found in the CSV file")

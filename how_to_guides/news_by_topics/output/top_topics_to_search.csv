@@ -1,0 +1,9 @@
+name|id|description
+Stock Loss|business,stock-prices,stock-price,loss,|Share price falls
+Partnership|business,partnerships,partnership,,|An agreement between two or more parties to share responsibility for a business
+Supply Decrease|business,products-services,supply,decrease,|Production levels fall
+Demand Increase|business,products-services,demand,increase,|Demand for goods and services rises
+Stock Gain|business,stock-prices,stock-price,gain,|Share price rises
+Product Release|business,products-services,product-release,,|A new product or service is launched
+Legal Issues|society,legal,legal-issues,,|A dispute between two or more parties that is brought to a court of law
+Product Enhancement|business,products-services,product-enhancement,,|An upgrade to an existing product or service

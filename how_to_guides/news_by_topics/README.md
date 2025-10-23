@@ -42,9 +42,28 @@ NVIDIA Corporation,,,,,2379504
 Figma Inc.,,,,316841105,
 ```
 
-## Workflow
+## Quick Start (Automated Pipeline)
 
-The analysis follows a three-step sequential process:
+For convenience, you can run the entire analysis pipeline with a single command:
+
+```bash
+python run_news_pipeline.py
+```
+
+This automated script will:
+1. Check prerequisites (API key, input files)
+2. Run all three steps sequentially
+3. Handle errors and provide detailed logging
+4. Generate a comprehensive summary
+
+**Requirements:**
+- Input file: `input/public_companies.csv`
+- API key set in `.env` file
+- All dependencies installed
+
+## Manual Workflow
+
+The analysis can also be run step-by-step following this three-step sequential process:
 
 ### Step 1: Find Company IDs
 ```bash
@@ -116,8 +135,11 @@ news_by_topics/
 │   ├── company_ids.csv               # Step 1 output: Company IDs
 │   └── top_topics_to_search.csv      # Step 2 output: Topic data
 ├── logs/
-│   ├── news_search.log              # Step 3 logs
-│   └── top_topics_to_search.log     # Step 2 logs
+│   ├── pipeline.log                  # Automated pipeline logs
+│   ├── company_ids.log               # Step 1 logs
+│   ├── top_topics_to_search.log      # Step 2 logs
+│   └── news_search.log               # Step 3 logs
+├── run_news_pipeline.py             # Automated pipeline script
 ├── get_company_ids.py               # Step 1 script
 ├── get_top_topic_ids.py             # Step 2 script
 ├── get_news.py                      # Step 3 script
@@ -182,6 +204,20 @@ The final analysis produces tables like this:
 - Use log levels: INFO, WARNING, ERROR
 
 ## Advanced Usage
+
+### Using the Automated Pipeline
+
+The `run_news_pipeline.py` script provides several advantages:
+
+- **Error Handling**: Stops execution if any step fails
+- **Progress Tracking**: Clear logging of each step's progress
+- **Prerequisites Check**: Validates API key and input files before starting
+- **Comprehensive Logging**: Saves detailed logs for troubleshooting
+
+**Pipeline Configuration:**
+- Input file path: `input/public_companies.csv` (configurable in script)
+- Output directory: `output/` (auto-created)
+- Log directory: `logs/` (auto-created)
 
 ### Customizing Search Parameters
 You can modify the following parameters in the scripts:
